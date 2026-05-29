@@ -1,0 +1,43 @@
+replicaCount: 2
+
+image:
+  repository: artifactory.smaitic.internal/docker-prod/node-api
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: jarvis-artifactory
+
+containerPort: 3000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: nginx
+  host: api.smaitic.internal
+  tlsSecret: node-api-tls
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPU: 70
+
+probes:
+  liveness: /healthz
+  readiness: /ready
+
+serviceAccount:
+  create: true
+  name: ""
